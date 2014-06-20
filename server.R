@@ -38,7 +38,7 @@ function(input, output, session) {
       parsed <- parse(text = code)
       expr <- if (length(parsed) > 0) parsed[[1]] else NULL
 
-      # Hack to simulate %>%, which we can't do yet
+      # For all but the first stage, pipe the previous value
       if (i > 1) {
         lastValue <- getStage(i-1)$value
         expr <- substitute(a %>% b, list(a=lastValue, b=expr))
