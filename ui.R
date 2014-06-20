@@ -46,7 +46,7 @@ fluidPage(
     column(4, id = "pipeline-container",
       h2("Pipeline"),
       lapply(0:8, function(i) {
-        tags$textarea(id=paste0("stage", i), class="stage")
+        tags$textarea(id=paste0("stage", i), class="stage", placeholder="identity()")
       }),
       actionButton("print", "Print to console")
     ),

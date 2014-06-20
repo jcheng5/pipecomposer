@@ -2,8 +2,8 @@ library(magrittr)
 require(dplyr)
 require(ggvis)
 
-df_to_html <- function(df, rows = 20L) {
-  table <- renderTable(df)() %>% HTML()
+df_to_html <- function(df, rows = 100L) {
+  table <- renderTable(head(df, rows))() %>% HTML()
   tagList(
     div(nrow(df), " total rows"),
     table

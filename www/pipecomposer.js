@@ -12,7 +12,7 @@ function activateStage(el) {
 }
 
 $(function() {
-  $(document).on("mouseenter keypress focus", ".stage", function(e) {
+  $(document).on("mouseenter focus", ".stage", function(e) {
     var el = e.target;
     activateStage(el);
   });
