@@ -35,20 +35,16 @@ function(input, output, session) {
     rx <- reactive({
       prevEnv <- if (i == 1) .GlobalEnv else getStage(i-1)$env
       thisEnv <- new.env(parent = prevEnv)
-      parsed <- parse(text=code)
+      parsed <- parse(text = code)
+      expr <- if (length(parsed) > 0) parsed[[1]] else NULL
 
       # Hack to simulate %>%, which we can't do yet
       if (i > 1) {
-        if (length(parsed[[1]]) > 1) {
-          for (j in length(parsed[[1]]):2) {
-            parsed[[1]][[j+1]] <- parsed[[1]][[j]]
-          }
-        }
-        parsed[[1]][[2]] <- as.symbol("..parent..")
-        thisEnv[["..parent.."]] <- getStage(i-1)$value
+        lastValue <- getStage(i-1)$value
+        expr <- substitute(a %>% b, list(a=lastValue, b=expr))
       }
 
-      result <- eval(parsed, envir=thisEnv)
+      result <- eval(expr, envir=thisEnv)
       list(env = thisEnv, value = result)
     })
     stages[[paste0("stage", i)]] <- rx
