@@ -1,0 +1,35 @@
+html, body {
+  height: 100%;
+}
+body {
+  zoom: 80%;
+}
+h2 {
+  text-align: center;
+}
+.stage {
+  width: 90%;
+  font-family: Ubuntu mono, monospace;
+  box-sizing: border-box;
+}
+.stage.active {
+  background-color: #FFD;
+}
+#left, #right {
+  overflow: auto;
+  height: 100%;
+}
+#pipeline-container {
+  background-color: #EEE;
+  text-align: center;
+  height: 100%;
+}
+#code {
+  text-align: left;
+  width: 90%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.container-fluid, .row-fluid {
+  height: 100%;
+}
