@@ -13,7 +13,9 @@ fluidPage(
     column(4, id = "pipeline-container",
       h2("Pipeline"),
       lapply(1:8, function(i) {
-        tags$textarea(id=paste0("stage", i), class="stage", placeholder="identity()")
+        tags$textarea(id=paste0("stage", i), class="stage",
+          placeholder = if (i == 1) "NULL" else "identity()"
+        )
       }),
       h4("Code"),
       helpText("Double-click the code to select-all"),
