@@ -14,7 +14,7 @@ fluidPage(
       }
       .stage {
         width: 80%;
-        font-family: monospace;
+        font-family: Consolas, monospace;
       }
       .stage.active {
         background-color: #FFD;
