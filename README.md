@@ -19,19 +19,19 @@ pipecomposer()
 
 ## Usage
 
-### Navigation
+##### Navigation
 
 Use the tab key to move the cursor between stages. Hover your mouse cursor over any stage to change the input/output panes to reflect that stage.
 
 
-### Retrieving your code
+##### Retrieving your code
 
 When you're done, close the browser tab or window and the final version of your code will be printed at the console. Or click the Print button to record intermediate versions of your code to the console.
 
-### Persistence
+##### Persistence
 
 Stage values persist between runs of Pipe Composer during a single R session. So if you close your Pipe Composer window and then realize you need to make a change, simply calling `pipecomposer()` again will let you pick up where you left off.
 
-### Import code from clipboard
+##### Import code from clipboard
 
 If you have an existing pipeline expression that you would like to import into Pipe Composer, copy it to the clipboard and run the `import_clipboard()` function. It will attempt to read the code from the clipboard, parse it into pipeline stages, and launch Pipe Composer.
