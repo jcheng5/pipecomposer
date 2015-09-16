@@ -4,7 +4,8 @@ Title: Interactive utility for generating magrittr pipelines
 Version: 0.1.0
 Authors@R: c(person("Joe", "Cheng", role = c("aut", "cre"), email = "joe@rstudio.com"))
 Maintainer: Joe Cheng <joe@rstudio.com>
-Description: More about what it does (maybe more than one line)
+Description: Speeds up iteration when using dplyr to manipulate and ggvis to
+    visualize your data.
 License: GPL-3
 LazyData: TRUE
 Imports: shiny, clipr

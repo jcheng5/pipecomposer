@@ -8,7 +8,9 @@
 #' @param indent String to use to indent stages two and later when printing code
 #'   to the console.
 #'
-#' @import shiny dplyr ggvis
+#' @import shiny
+#' @importFrom dplyr arrange
+#' @importFrom ggvis layer_points
 #' @export
 pipecomposer <- function(
   stage_count = getOption("pipecomposer.stage_count", 8),
@@ -16,7 +18,7 @@ pipecomposer <- function(
 
   # Represent dataframe in HTML
   df_to_html <- function(df, rows = 100L) {
-    table <- renderTable(head(df, rows))() %>% HTML()
+    table <- HTML(renderTable(head(df, rows))())
     tagList(
       div(nrow(df), " total rows"),
       table
