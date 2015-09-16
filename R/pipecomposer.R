@@ -14,6 +14,7 @@ pipecomposer <- function(
   stage_count = getOption("pipecomposer.stage_count", 8),
   indent = getOption("pipecomposer.indent", "  ")) {
 
+  # Represent dataframe in HTML
   df_to_html <- function(df, rows = 100L) {
     table <- renderTable(head(df, rows))() %>% HTML()
     tagList(
@@ -25,58 +26,26 @@ pipecomposer <- function(
   ui <- fluidPage(
     tags$head(
       includeScript(system.file("www/pipecomposer.js", package = "pipecomposer")),
-      tags$style(type="text/css", "
-        html, body {
-          height: 100%;
-        }
-        body {
-          zoom: 80%;
-        }
-        h2 {
-          text-align: center;
-        }
-        .stage {
-          width: 80%;
-          font-family: Consolas, monospace;
-        }
-        .stage.active {
-          background-color: #FFD;
-        }
-        #in {
-          overflow: scroll;
-          height: 100%;
-        }
-        #out {
-          overflow: scroll;
-          height: 100%;
-        }
-        #pipeline-container {
-          background-color: #EEE;
-          text-align: center;
-          height: 100%;
-        }
-        .container-fluid, .row-fluid {
-          height: 100%;
-        }
-      "),
-      tags$script(src="pipecomposer.js")
+      includeCSS(system.file("www/pipecomposer.css", package = "pipecomposer"))
     ),
     fluidRow(
       column(4,
         h2("Input"),
-        uiOutput("in")
+        uiOutput("left")
       ),
       column(4, id = "pipeline-container",
         h2("Pipeline"),
-        lapply(0:stage_count, function(i) {
-          tags$textarea(id=paste0("stage", i), class="stage", placeholder="identity()")
+        lapply(1:stage_count, function(i) {
+          tags$textarea(id=paste0("stage", i), class="stage",
+            placeholder = if (i == 1) "NULL" else "identity()"
+          )
         }),
         tags$br(),
         actionButton("print", "Print to console")
       ),
       column(4,
         h2("Output"),
-        uiOutput("out")
+        uiOutput("right")
       )
     )
   )
@@ -86,27 +55,29 @@ pipecomposer <- function(
     # Load saved state
     if (length(.GlobalEnv$.PipeComposerSavedState) > 0) {
       for (i in 1:length(.GlobalEnv$.PipeComposerSavedState)) {
-        updateTextInput(session, paste0("stage", i-1), value = .GlobalEnv$.PipeComposerSavedState[[i]])
+        updateTextInput(session, paste0("stage", i), value = .GlobalEnv$.PipeComposerSavedState[[i]])
       }
     }
 
-    rootEnv <- new.env()
     stages <- reactiveValues()
+
+    # Gets a list with the env and value of that stage; env is
+    # the environment that the code executed in, value is the result
     getStage <- function(i) {
       stages[[paste0("stage", i)]]()
     }
+    # Replaces the code for stage `i`--this invalidates stages i and greater
     setStage <- function(i, code) {
-      if (code == "" && i > 0)
+      if (code == "" && i > 1)
         code = "identity()"
 
       force(code)
       rx <- reactive({
-        prevEnv <- if (i == 0) rootEnv else getStage(i-1)$env
+        prevEnv <- if (i == 1) .GlobalEnv else getStage(i-1)$env
         thisEnv <- new.env(parent = prevEnv)
         parsed <- parse(text=code)
 
-        # Hack to simulate %>%, which we can't do yet
-        if (i > 0) {
+        if (i > 1) {
           parentVal <- getStage(i-1)$value
           parsed <- substituteDirect(
             call("%>%", quote(..parent..), parsed[[1]]),
@@ -120,13 +91,23 @@ pipecomposer <- function(
       stages[[paste0("stage", i)]] <- rx
     }
 
-    lapply(0:stage_count, function(i) {
+    # Now initialize all the stages
+    lapply(1:stage_count, function(i) {
+      # Initially there is no code
       setStage(i, "")
+      # Whenever the code changes for a stage, call setStage
       observe({
         setStage(i, input[[paste0("stage", i)]])
       })
+      # We'll use the same renderUI logic for the left and right
+      # result-viewing panes, so assign it to a variable
       outputFunc <- renderUI({
+        # getStage(i) executes whatever is necessary and takes a
+        # reactive dependency on the stage (and indirectly, all
+        # preceding stages as well)
         result <- getStage(i)$value
+        # Now that we've got a result, let's render it.
+        # TODO: Make this behavior customizable/extensible
         if (is.data.frame(result)) {
           return(df_to_html(result))
         } else if (inherits(result, "ggvis")) {
@@ -141,27 +122,35 @@ pipecomposer <- function(
       output[[paste0("rightOut", i)]] <- outputFunc
     })
 
+    # Returns an integer indicating which stage is being viewed.
+    # If none is active, a validation error is raised.
     activeStage <- reactive({
       validate(need(input$activeStage, FALSE))
       input$activeStage
     })
 
-    output$`in` <- renderUI({
-      if (activeStage() == 0)
+    # The left result-viewing pane shows the previous stage
+    # output, unless we're at the first stage, then it's empty
+    output$left <- renderUI({
+      if (activeStage() == 1)
         NULL
       else
         uiOutput(paste0("leftOut", activeStage()-1))
     })
-    output$`out` <- renderUI({
+
+    # The right result-viewing pane shows the active stage output
+    output$right <- renderUI({
       uiOutput(paste0("rightOut", activeStage()))
     })
 
+    # All of the stages, as a character vector of length stage_count.
     stage_values <- reactive({
-      sapply(0:stage_count, function(i) {
+      sapply(1:stage_count, function(i) {
         input[[paste0("stage", i)]]
       })
     })
 
+    # The combined pipeline code as a single string.
     code <- reactive({
       sv <- stage_values()
       structure(
@@ -170,6 +159,10 @@ pipecomposer <- function(
       )
     })
 
+    # Whenever any code changes, save it as a global so we can
+    # prepopulate the stages on reload. (Clearly this is a single
+    # user system!) Alternatively we could save the state in the
+    # browser's localStorage, or as URL data, or...
     observe({
       .GlobalEnv$.PipeComposerSavedState <- stage_values()
     })
