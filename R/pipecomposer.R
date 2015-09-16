@@ -38,11 +38,10 @@ pipecomposer <- function(
       column(4, id = "pipeline-container",
         h2("Pipeline"),
         lapply(1:stage_count, function(i) {
-          tags$textarea(id=paste0("stage", i), class="stage",
+          tags$div(tags$textarea(id=paste0("stage", i), class="stage",
             placeholder = if (i == 1) "NULL" else "identity()"
-          )
+          ))
         }),
-        tags$br(),
         actionButton("print", "Print to console")
       ),
       column(4,

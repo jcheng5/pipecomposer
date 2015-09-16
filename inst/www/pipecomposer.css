@@ -1,11 +1,10 @@
 html, body {
   height: 100%;
-}
-body {
-  zoom: 80%;
+  font-size: 11px;
 }
 h2 {
   text-align: center;
+  font-size: 18px;
 }
 .stage {
   width: 90%;
@@ -14,6 +13,12 @@ h2 {
 }
 .stage.active {
   background-color: #FFD;
+}
+.ggvis-output {
+  zoom: 80%;
+}
+.btn {
+  margin: 12px 3px;
 }
 #left, #right {
   overflow: auto;

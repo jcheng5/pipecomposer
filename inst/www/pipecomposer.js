@@ -2,13 +2,12 @@
 // the input value "activeStage" (a number, or null) to the server.
 function activateStage(el) {
   $(".stage").removeClass("active");
-  if (el) {
+  if (el && Shiny.onInputChange) {
     $(el).addClass("active");
     var i = parseInt(el.id.replace(/^stage/, ""));
     Shiny.onInputChange("activeStage", i);
   }
   else {
-    console.log('b')
     Shiny.onInputChange("activeStage", null);
   }
 }
