@@ -1,0 +1,11 @@
+Package: pipecomposer
+Type: Package
+Title: Interactive utility for generating magrittr pipelines
+Version: 0.1.0
+Authors@R: c(person("Joe", "Cheng", role = c("aut", "cre"), email = "joe@rstudio.com"))
+Maintainer: Joe Cheng <joe@rstudio.com>
+Description: More about what it does (maybe more than one line)
+License: GPL-3
+LazyData: TRUE
+Imports: shiny, clipr
+Depends: ggvis, dplyr
